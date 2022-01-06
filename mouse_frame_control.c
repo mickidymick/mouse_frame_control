@@ -196,7 +196,8 @@ static void middle_drag(yed_event* event) {
                         } while (frame->btop == save);
                     }
                 }
-                if (frame->btop == 1) {
+                if (MOUSE_ROW(event->key) == 1) {
+                    frame->top_f    = 0;
                     frame->height_f = 1.0;
                     frame->left_f   = 0;
                     frame->width_f  = 1.0;
@@ -216,13 +217,13 @@ static void middle_drag(yed_event* event) {
                     }
                 }
 
-/*                 if ((frame->bwidth + frame->bleft - 1) == ys->term_cols) { */
-/*                     frame->height_f = 1.0; */
-/*                     frame->top_f    = 0; */
-/*                     frame->left_f   = 0.5; */
-/*                     frame->width_f  = 0.5; */
-/*                     FRAME_RESET_RECT(frame); */
-/*                 } */
+                if (MOUSE_COL(event->key) == ys->term_cols) {
+                    frame->height_f = 1.0;
+                    frame->top_f    = 0;
+                    frame->left_f   = 0.5;
+                    frame->width_f  = 0.5;
+                    FRAME_RESET_RECT(frame);
+                }
             }else if (MOUSE_COL(event->key) < mouse_loc_c) {
                 for(int i=0; i<(mouse_loc_c - MOUSE_COL(event->key)); i++) {
                     if (frame->bleft > 1) {
@@ -234,9 +235,10 @@ static void middle_drag(yed_event* event) {
                     }
                 }
 
-                if (frame->bleft == 1) {
-                    frame->height_f = 1.0;
+                if (MOUSE_COL(event->key) == 1) {
                     frame->top_f    = 0;
+                    frame->height_f = 1.0;
+                    frame->left_f   = 0;
                     frame->width_f  = 0.5;
                     FRAME_RESET_RECT(frame);
                 }
