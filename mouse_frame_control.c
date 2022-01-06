@@ -19,7 +19,6 @@ static void       middle_drag(yed_event* event);
 static void       middle_release(yed_event* event);
 static void       draw_corner(yed_event* event);
 static void       draw(void);
-static void       update_corner(yed_event* event);
 
 int yed_plugin_boot(yed_plugin *self) {
     yed_plugin_request_mouse_reporting(self);
@@ -35,11 +34,6 @@ int yed_plugin_boot(yed_plugin *self) {
     corner_eh.kind = EVENT_FRAME_ACTIVATED;
     corner_eh.fn   = draw_corner;
     yed_plugin_add_event_handler(self, corner_eh);
-
-    yed_event_handler update_corner_eh;
-    update_corner_eh.kind = EVENT_FRAME_PRE_UPDATE;
-    update_corner_eh.fn   = update_corner;
-    yed_plugin_add_event_handler(self, update_corner_eh);
 
     yed_plugin_set_unload_fn(self, mouse_unload);
 
@@ -125,26 +119,22 @@ static void middle_drag(yed_event* event) {
             if (MOUSE_ROW(event->key) > mouse_loc_r) {
                 for(int i=0; i<(MOUSE_ROW(event->key) - mouse_loc_r); i++) {
                     if ((frame->btop + 1) + frame->bheight < ys->term_rows) {
-                        yed_undraw_frame(frame);
                         save = frame->bheight;
                         do {
                             frame->height_f += unit_y;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bheight == save);
-                        ys->redraw = 1;
                     }
                 }
 
             }else if (MOUSE_ROW(event->key) < mouse_loc_r) {
                 for(int i=0; i<(mouse_loc_r - MOUSE_ROW(event->key)); i++) {
                     if (frame->height > 1) {
-                        yed_undraw_frame(frame);
                         save = frame->bheight;
                         do {
                             frame->height_f -= unit_y;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bheight == save);
-                        ys->redraw = 1;
                     }
                 }
             }
@@ -153,25 +143,21 @@ static void middle_drag(yed_event* event) {
             if (MOUSE_COL(event->key) > mouse_loc_c) {
                 for(int i=0; i<(MOUSE_COL(event->key) - mouse_loc_c); i++) {
                     if ((frame->bleft + 1) + frame->bwidth - 1 < ys->term_cols + 1) {
-                        yed_undraw_frame(frame);
                         save = frame->bwidth;
                         do {
                             frame->width_f += unit_x;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bwidth == save);
-                        ys->redraw = 1;
                     }
                 }
             }else if (MOUSE_COL(event->key) < mouse_loc_c) {
                 for(int i=0; i<(mouse_loc_c - MOUSE_COL(event->key)); i++) {
                     if (frame->width > 1) {
-                        yed_undraw_frame(frame);
                         save = frame->bwidth;
                         do {
                             frame->width_f -= unit_x;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bwidth == save);
-                        ys->redraw = 1;
                     }
                 }
             }
@@ -193,27 +179,28 @@ static void middle_drag(yed_event* event) {
             if (MOUSE_ROW(event->key) > mouse_loc_r) {
                 for(int i=0; i<(MOUSE_ROW(event->key) - mouse_loc_r); i++) {
                     if ((frame->btop + 1) + frame->bheight < ys->term_rows) {
-                        yed_undraw_frame(frame);
                         save = frame->btop;
                         do {
                             frame->top_f += unit_y;
                             FRAME_RESET_RECT(frame);
                         } while (frame->btop == save);
-                        ys->redraw = 1;
                     }
                 }
-
             }else if (MOUSE_ROW(event->key) < mouse_loc_r) {
                 for(int i=0; i<(mouse_loc_r - MOUSE_ROW(event->key)); i++) {
                     if (frame->btop > 1) {
-                        yed_undraw_frame(frame);
                         save = frame->btop;
                         do {
                             frame->top_f -= unit_y;
                             FRAME_RESET_RECT(frame);
                         } while (frame->btop == save);
-                        ys->redraw = 1;
                     }
+                }
+                if (frame->btop == 1) {
+                    frame->height_f = 1.0;
+                    frame->left_f   = 0;
+                    frame->width_f  = 1.0;
+                    FRAME_RESET_RECT(frame);
                 }
             }
             mouse_loc_r = MOUSE_ROW(event->key);
@@ -221,26 +208,37 @@ static void middle_drag(yed_event* event) {
             if (MOUSE_COL(event->key) > mouse_loc_c) {
                 for(int i=0; i<(MOUSE_COL(event->key) - mouse_loc_c); i++) {
                     if ((frame->bleft + 1) + frame->bwidth - 1 < ys->term_cols + 1) {
-                        yed_undraw_frame(frame);
                         save = frame->bleft;
                         do {
                             frame->left_f += unit_x;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bleft == save);
-                        ys->redraw = 1;
                     }
                 }
+
+/*                 if ((frame->bwidth + frame->bleft - 1) == ys->term_cols) { */
+/*                     frame->height_f = 1.0; */
+/*                     frame->top_f    = 0; */
+/*                     frame->left_f   = 0.5; */
+/*                     frame->width_f  = 0.5; */
+/*                     FRAME_RESET_RECT(frame); */
+/*                 } */
             }else if (MOUSE_COL(event->key) < mouse_loc_c) {
                 for(int i=0; i<(mouse_loc_c - MOUSE_COL(event->key)); i++) {
                     if (frame->bleft > 1) {
-                        yed_undraw_frame(frame);
                         save = frame->bleft;
                         do {
                             frame->left_f -= unit_x;
                             FRAME_RESET_RECT(frame);
                         } while (frame->bleft == save);
-                        ys->redraw = 1;
                     }
+                }
+
+                if (frame->bleft == 1) {
+                    frame->height_f = 1.0;
+                    frame->top_f    = 0;
+                    frame->width_f  = 0.5;
+                    FRAME_RESET_RECT(frame);
                 }
             }
             mouse_loc_c = MOUSE_COL(event->key);
@@ -295,11 +293,6 @@ static void draw() {
                          frame->bwidth + frame->bleft - 1,
                          yed_active_style_get_active(),
                          "⇲");
-}
-static void update_corner(yed_event* event) {
-    if (dd != NULL) {
-        dd->dirty = 1;
-    }
 }
 
 void mouse_unload(yed_plugin *self) {
