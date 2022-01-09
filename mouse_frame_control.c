@@ -93,6 +93,9 @@ static void middle_click(yed_event* event) {
     }
     yed_activate_frame(frame);
 
+    mouse_loc_r = MOUSE_ROW(event->key);
+    mouse_loc_c = MOUSE_COL(event->key);
+
     event->cancel = 1;
 }
 
@@ -100,6 +103,9 @@ static void middle_drag(yed_event* event) {
     yed_frame *frame;
     int        save;
     float      unit_x, unit_y;
+    float      start  = 0.20;
+    float      width  = 0.60;
+
 
     frame = ys->active_frame;
     if (!yed_frame_is_tree_root(frame)) {return;}
@@ -176,7 +182,13 @@ static void middle_drag(yed_event* event) {
             unit_y = 1.0 / (float)ys->term_rows;
 
 /*             update height */
+/*             MOVE DOWN */
             if (MOUSE_ROW(event->key) > mouse_loc_r) {
+                if (frame->btop == 1 && frame->bwidth == ys->term_cols) {
+                    frame->height_f = width;
+                    frame->left_f   = start;
+                    frame->width_f  = width;
+                }
                 for(int i=0; i<(MOUSE_ROW(event->key) - mouse_loc_r); i++) {
                     if ((frame->btop + 1) + frame->bheight < ys->term_rows) {
                         save = frame->btop;
@@ -186,6 +198,7 @@ static void middle_drag(yed_event* event) {
                         } while (frame->btop == save);
                     }
                 }
+/*             MOVE UP */
             }else if (MOUSE_ROW(event->key) < mouse_loc_r) {
                 for(int i=0; i<(mouse_loc_r - MOUSE_ROW(event->key)); i++) {
                     if (frame->btop > 1) {
@@ -205,8 +218,18 @@ static void middle_drag(yed_event* event) {
                 }
             }
             mouse_loc_r = MOUSE_ROW(event->key);
+
 /*             update width */
+/*             MOVE RIGHT */
             if (MOUSE_COL(event->key) > mouse_loc_c) {
+                if ((frame->bwidth != ys->term_cols || frame->btop != 1) &&
+                    frame->bleft == 1 &&
+                    frame->bheight == ys->term_rows - 2) {
+
+                    frame->top_f    = start;
+                    frame->height_f = width;
+                    frame->width_f  = width;
+                }
                 for(int i=0; i<(MOUSE_COL(event->key) - mouse_loc_c); i++) {
                     if ((frame->bleft + 1) + frame->bwidth - 1 < ys->term_cols + 1) {
                         save = frame->bleft;
@@ -224,7 +247,17 @@ static void middle_drag(yed_event* event) {
                     frame->width_f  = 0.5;
                     FRAME_RESET_RECT(frame);
                 }
+/*             MOVE LEFT */
             }else if (MOUSE_COL(event->key) < mouse_loc_c) {
+                if ((frame->bwidth != ys->term_cols || frame->btop != 1) &&
+                    frame->bleft +frame->bwidth - 1 == ys->term_cols &&
+                    frame->bheight == ys->term_rows - 2) {
+
+                    frame->top_f    = start;
+                    frame->height_f = width;
+                    frame->left_f   = 0.40;
+                    frame->width_f  = width;
+                }
                 for(int i=0; i<(mouse_loc_c - MOUSE_COL(event->key)); i++) {
                     if (frame->bleft > 1) {
                         save = frame->bleft;
@@ -248,6 +281,9 @@ static void middle_drag(yed_event* event) {
     }
     draw();
     event->cancel = 1;
+/*     yed_set_cursor_far_within_frame(frame, frame->cursor_line, frame->cursor_col); */
+    yed_frame_hard_reset_cursor_x(frame);
+    yed_frame_hard_reset_cursor_y(frame);
 }
 
 static void middle_release(yed_event* event) {
