@@ -399,6 +399,7 @@ static void draw() {
 
     if (dd != NULL) {
         yed_kill_direct_draw(dd);
+        dd = NULL;
     }
 
     frame = ys->active_frame;
