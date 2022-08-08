@@ -307,8 +307,8 @@ static void middle_drag(yed_event* event) {
 
                 if (MOUSE_ROW(event->key) == 1) {
                     frame_tree = yed_frame_tree_get_root(frame->tree);
-                    yed_frame_tree_set_relative_rect(frame_tree, 0, 0, 1, 1);
-                    yed_frame_tree_recursive_readjust(frame_tree);
+                    yed_frame_tree_set_size(frame_tree, 1, 1);
+                    yed_frame_tree_set_pos(frame_tree, 0, 0);
                 }
             }
             mouse_loc_r = MOUSE_ROW(event->key);
@@ -321,8 +321,8 @@ static void middle_drag(yed_event* event) {
 
                 if (((top * (ys->term_rows - 2) > 1) || (width * ys->term_cols < ys->term_cols)) &&
                      (left * (ys->term_cols) <= 1) && (height * (ys->term_rows - 2) == (ys->term_rows - 2))) {
-                    yed_resize_frame_tree(frame_tree, (0.60 * ys->term_rows) - (height * ys->term_rows), (0.60 * ys->term_cols) - (width * ys->term_cols));
-                    yed_move_frame_tree(frame_tree, (0.20 * (ys->term_rows - 2)) - (top * (ys->term_rows - 2)), 0);
+                    yed_frame_tree_set_size(frame_tree, 0.60, 0.60);
+                    yed_move_frame_tree(frame_tree, 0.20, 0);
                 }
                 yed_move_frame(frame, 0, MOUSE_COL(event->key) - mouse_loc_c);
 
@@ -339,8 +339,8 @@ static void middle_drag(yed_event* event) {
                 if (((top * (ys->term_rows - 2) > 1) || (width * ys->term_cols < ys->term_cols)) &&
                      ((width * ys->term_cols) + (left * ys->term_cols) >= ys->term_cols) &&
                      (height * (ys->term_rows - 2) == (ys->term_rows - 2))) {
-                    yed_resize_frame_tree(frame_tree, (0.60 * ys->term_rows) - (height * ys->term_rows), (0.60 * ys->term_cols) - (width * ys->term_cols));
-                    yed_move_frame_tree(frame_tree, (0.20 * (ys->term_rows - 2)) - (top * (ys->term_rows - 2)), (0.40 * ys->term_cols) - (left * ys->term_cols));
+                    yed_frame_tree_set_size(frame_tree, 0.60, 0.60);
+                    yed_move_frame_tree(frame_tree, 0.20, 0.40);
                 }
                 yed_move_frame(frame, 0, MOUSE_COL(event->key) - mouse_loc_c);
 
