@@ -295,8 +295,8 @@ static void middle_drag(yed_event* event) {
                 yed_frame_tree_get_absolute_rect(frame_tree, &top, &left, &height, &width);
 
                 if ((top * (ys->term_rows - 2) <= 1) && (width * ys->term_cols >= ys->term_cols)) {
-                    yed_resize_frame_tree(frame_tree, (0.60 * ys->term_rows) - (height * ys->term_rows), (0.60 * ys->term_cols) - (width * ys->term_cols));
-                    yed_move_frame_tree(frame_tree, 0, (0.20 * ys->term_cols) - (left * ys->term_cols));
+                    yed_frame_tree_set_size(frame_tree, 0.60, 0.60);
+                    yed_frame_tree_set_pos(frame_tree, 0, 0.20);
                 }
 
                 yed_move_frame(frame, MOUSE_ROW(event->key) - mouse_loc_r, 0);
@@ -307,8 +307,8 @@ static void middle_drag(yed_event* event) {
 
                 if (MOUSE_ROW(event->key) == 1) {
                     frame_tree = yed_frame_tree_get_root(frame->tree);
-                    yed_frame_tree_set_size(frame_tree, 1, 1);
                     yed_frame_tree_set_pos(frame_tree, 0, 0);
+                    yed_frame_tree_set_size(frame_tree, 1, 1);
                 }
             }
             mouse_loc_r = MOUSE_ROW(event->key);
