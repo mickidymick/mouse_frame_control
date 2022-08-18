@@ -411,6 +411,7 @@ static void draw() {
         frame = yed_frame_tree_get_split_leaf_prefer_right_or_bottommost(frame_tree->child_trees[0])->frame;
     }
     attr = yed_active_style_get_active();
+    ATTR_SET_BG_KIND(attr.flags, ATTR_KIND_NONE);
     attr.bg = 0;
     dd = yed_direct_draw(frame->bheight + frame->btop - 1,
                         frame->bwidth + frame->bleft - 1,
