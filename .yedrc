@@ -1,5 +1,0 @@
-set builder-build-command './build.sh'
-plugins-add-dir           '~/tmp_yed/completed_plugins/mouse_frame_control'
-plugin-unload             'ypm/plugins/mouse_frame_control'
-plugin-load               'mouse_frame_control'
-yedrc-load                'my_yed_layout.yedrc'
